@@ -1,46 +1,9 @@
-# Unscented Kalman Filter Project Starter Code
+# Unscented Kalman Filter Project
 Self-Driving Car Engineer Nanodegree Program
 
-In this project utilize an Unscented Kalman Filter to estimate the state of a moving object of interest with noisy lidar and radar measurements. Passing the project requires obtaining RMSE values that are lower that the tolerance outlined in the project rubric. 
+In this project, students are asked to implement the unsented Kalman Filter to estimate the state of a moving object of interest with noisy LiDAR and RADAR measurements.
 
-This project involves the Term 2 Simulator which can be downloaded [here](https://github.com/udacity/self-driving-car-sim/releases)
-
-This repository includes two files that can be used to set up and intall [uWebSocketIO](https://github.com/uWebSockets/uWebSockets) for either Linux or Mac systems. For windows you can use either Docker, VMware, or even [Windows 10 Bash on Ubuntu](https://www.howtogeek.com/249966/how-to-install-and-use-the-linux-bash-shell-on-windows-10/) to install uWebSocketIO. Please see [this concept in the classroom](https://classroom.udacity.com/nanodegrees/nd013/parts/40f38239-66b6-46ec-ae68-03afd8a601c8/modules/0949fca6-b379-42af-a919-ee50aa304e6a/lessons/f758c44c-5e40-4e01-93b5-1a82aa4e044f/concepts/16cf4a78-4fc7-49e1-8621-3450ca938b77) for the required version and installation scripts.
-
-Once the install for uWebSocketIO is complete, the main program can be built and ran by doing the following from the project top directory.
-
-1. mkdir build
-2. cd build
-3. cmake ..
-4. make
-5. ./UnscentedKF
-
-Tips for setting up your environment can be found [here](https://classroom.udacity.com/nanodegrees/nd013/parts/40f38239-66b6-46ec-ae68-03afd8a601c8/modules/0949fca6-b379-42af-a919-ee50aa304e6a/lessons/f758c44c-5e40-4e01-93b5-1a82aa4e044f/concepts/23d376c7-0195-4276-bdf0-e02f1f3c665d)
-
-Note that the programs that need to be written to accomplish the project are src/ukf.cpp, src/ukf.h, tools.cpp, and tools.h
-
-The program main.cpp has already been filled out, but feel free to modify it.
-
-Here is the main protcol that main.cpp uses for uWebSocketIO in communicating with the simulator.
-
-
-INPUT: values provided by the simulator to the c++ program
-
-["sensor_measurement"] => the measurment that the simulator observed (either lidar or radar)
-
-
-OUTPUT: values provided by the c++ program to the simulator
-
-["estimate_x"] <= kalman filter estimated position x
-["estimate_y"] <= kalman filter estimated position y
-["rmse_x"]
-["rmse_y"]
-["rmse_vx"]
-["rmse_vy"]
-
----
-
-## Other Important Dependencies
+## Dependencies
 * cmake >= 3.5
   * All OSes: [click here for installation instructions](https://cmake.org/install/)
 * make >= 4.1 (Linux, Mac), 3.81 (Windows)
@@ -52,41 +15,76 @@ OUTPUT: values provided by the c++ program to the simulator
   * Mac: same deal as make - [install Xcode command line tools](https://developer.apple.com/xcode/features/)
   * Windows: recommend using [MinGW](http://www.mingw.org/)
 
-## Basic Build Instructions
+## Build and Run Instructions
+To build the program, run the following sequence of command line instructions.
 
-1. Clone this repo.
-2. Make a build directory: `mkdir build && cd build`
-3. Compile: `cmake .. && make`
-4. Run it: `./UnscentedKF` Previous versions use i/o from text files.  The current state uses i/o
-from the simulator.
+```bash
+$ cd /path/to/cloned/repo
+$ mkdir build
+$ cd build
+$ cmake ..
+$ make
+```
 
-## Editor Settings
+To see the program in action, make sure to download the [Term 2 simulator](https://github.com/udacity/self-driving-car-sim/releases), run it, and choose the first simulation option. Then, execute the program by executing the `UnscentedKF` program in the `build` folder.
 
-We've purposefully kept editor configuration files out of this repo in order to
-keep it as simple and environment agnostic as possible. However, we recommend
-using the following settings:
+```bash
+$ ./UnscentedKF
+```
 
-* indent using spaces
-* set tab width to 2 spaces (keeps the matrices in source code aligned)
+## Project Information
+The Kalman filter is an algorithm that predicts an object's movement by using sensor data. Because sensor data is noisy and has a degree of uncertainty, the Kalman filter is used to provide a more accurate prediction of the object's actual movement. For more information on the Kalman filter, please see my [README for the Extended Kalman Filter Project](https://github.com/willhnguyen/CarND-Extended-Kalman-Filter-Project#kalman-filter).
 
-## Code Style
+### Unscented Kalman Filter
+The unscented Kalman filter works with non-linear sensors similar to the extended Kalman filter. However, the unscented Kalman filter assumes that the distributions are always Gaussian. To proceed with that assumption, it chooses points around the mean (called sigma points) that it uses to further predict the object's location.
 
-Please stick to [Google's C++ style guide](https://google.github.io/styleguide/cppguide.html) as much as possible.
+The amount of sigma points chosen is dependent on the size of the state vector. Sigma points include the current state (the mean) and points one unit away in each state parameter.
 
-## Generating Additional Data
+![Number of Sigma Points](https://latex.codecogs.com/gif.latex?n_%5Csigma%20%3D%202%20n_x%20&plus;%201)
 
-This is optional!
+Sigma points are chosen to be one covariant unit away from the mean in either direction of a particular state parameter. The ![lambda](https://latex.codecogs.com/gif.latex?%5Clambda) term is a tunable parameter that determines how far the chosen sigma points are from the mean point. It is usually kept at ![lambda equation](https://latex.codecogs.com/gif.latex?%5Clambda%20%3D%203%20-%20n_x). The following equation is how to calculate all sigma points—each column of the matrix should be represent a single sigma point.
 
-If you'd like to generate your own radar and lidar data, see the
-[utilities repo](https://github.com/udacity/CarND-Mercedes-SF-Utilities) for
-Matlab scripts that can generate additional data.
+![Sigma Derivation](https://latex.codecogs.com/gif.latex?X_%7Bk%7Ck%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%20x_%7Bk%7Ck%7D%20%26%20x_k%20&plus;%20%5Csqrt%7B%28%5Clambda%20&plus;%20n_x%29%20P_%7Bk%7Ck%7D%7D%20%26%20x_k%20-%20%5Csqrt%7B%28%5Clambda%20&plus;%20n_x%29%20P_%7Bk%7Ck%7D%7D%29%20%5Cend%7Bbmatrix%7D)
 
-## Project Instructions and Rubric
+[nu]: https://latex.codecogs.com/gif.latex?%5Cnu
 
-This information is only accessible by people who are already enrolled in Term 2
-of CarND. If you are enrolled, see [the project page](https://classroom.udacity.com/nanodegrees/nd013/parts/40f38239-66b6-46ec-ae68-03afd8a601c8/modules/0949fca6-b379-42af-a919-ee50aa304e6a/lessons/c3eb3583-17b2-4d83-abf7-d852ae1b9fff/concepts/f437b8b0-f2d8-43b0-9662-72ac4e4029c1)
-for instructions and the project rubric.
+If necessary, an augmented state vector that includes the noise term ![nu][nu] should be generated prior to sigma point selection. This is to ensure next state calculations are calculated properly. The CTRV model used requires this augmented state vector.
 
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
+Once the sigma states are obtained, they are used in the prediction step and the measurement update step. In both steps, the state vector is updated by calculating the weighted average of each sigma point. The weights for each point are calculated using the following equation where a represents the number of augmented state parameters.
 
+![Weight of mean state](https://latex.codecogs.com/gif.latex?w_%7B0%7D%20%3D%20%5Cfrac%7B%5Clambda%7D%7B%5Clambda%20&plus;%20n_a%7D)
+
+![Weight of sigma states](https://latex.codecogs.com/gif.latex?w_%7Bi%20%5Cin%20%5Cleft%20%5C%7B%201%2C2%2C...%2Ca-1%20%5Cright%20%5C%7D%7D%20%3D%20%5Cfrac%7B1%7D%7B2%28%5Clambda%20&plus;%20n_a%29%7D)
+
+The measurement update equation also requires new equations to accomodate for the usage of sigma points. The biggest part of this is the cross-correlation matrix T which affects how the Kalman gain matrix is calculated. All other equations should follow the standard Kalman filter algorithm's equations.
+
+![](https://latex.codecogs.com/gif.latex?T_%7Bt&plus;1%7Ct%7D%20%3D%20%5Csum_%7Bi%3D1%7D%5E%7Bn_%5Csigma%7D%20w_i%20%28X_%7Bt&plus;1%7Ct%2Ci%7D%20-%20x_%7Bt&plus;1%7Ct%7D%29%28Z_%7Bt&plus;1%7Ct%2Ci%7D%20-%20z_%7Bt&plus;1%7Ct%7D%29%5ET)
+
+![](https://latex.codecogs.com/gif.latex?K_%7Bt&plus;1%7Ct%7D%20%3D%20T_%7Bt&plus;1%7Ct%7D%20S_%7Bt&plus;1%7Ct%7D%5E%7B-1%7D)
+
+![](https://latex.codecogs.com/gif.latex?x_%7Bt&plus;1%7Ct&plus;1%7D%20%3D%20x_%7Bt&plus;1%7Ct%7D%20&plus;%20K_%7Bt&plus;1%7Ct%7D%28z_%7Bt&plus;1%7D%20-%20z_%7Bt&plus;1%7Ct%7D%29)
+
+![](https://latex.codecogs.com/gif.latex?P_%7Bt&plus;1%7Ct&plus;1%7D%20%3D%20P_%7Bt&plus;1%7Ct%7D%20-%20K_%7Bt&plus;1%7Ct%7D%20S_%7Bt&plus;1%7Ct%7DK_%7Bt&plus;1%7Ct%7D%5ET)
+
+[psi]: https://latex.codecogs.com/gif.latex?%5Cpsi
+[psi dot]: https://latex.codecogs.com/gif.latex?%5Cdot%20%5Cpsi
+
+### The CTRV Model
+For this project, the constant turn rate and velocity model (CTRV) is used. In the previous project, the constant velocity model is used. For CTRV, the state includes the object's angle of movement ![psi][psi] and its turn rate ![psi dot][psi dot].
+
+![CTRV state vector](https://latex.codecogs.com/gif.latex?x%20%3D%20%5Cbegin%7Bbmatrix%7D%20p_x%5C%5C%20p_y%5C%5C%20v%5C%5C%20%5Cpsi%5C%5C%20%5Cdot%20%5Cpsi%20%5Cend%7Bbmatrix%7D)
+
+The prediction step will take the turn rate into account. This requires the augmented state vector which include the ![nu][nu] terms. However, the output vector should not include the ![nu][nu] terms.
+
+![Prediction Equation](https://latex.codecogs.com/gif.latex?x_%7Bt&plus;1%7D%20%3D%20x_t%20&plus;%20%5Cbegin%7Bbmatrix%7D%20%5Cfrac%7Bv_k%7D%7B%5Cdot%20%5Cpsi_k%7D%20%28sin%20%28%5Cpsi_k%20&plus;%20%5Cdot%20%5Cpsi_k%20%5CDelta%20t%29%20-%20sin%28%5Cpsi_k%29%29%29%5C%5C%20%5Cfrac%7Bv_k%7D%7B%5Cdot%20%5Cpsi_k%7D%20%28-cos%20%28%5Cpsi_k%20&plus;%20%5Cdot%20%5Cpsi_k%20%5CDelta%20t%29%20&plus;%20cos%28%5Cpsi_k%29%29%5C%5C%200%5C%5C%20%5Cdot%20%5Cpsi_k%20%5CDelta%20t%5C%5C%200%20%5Cend%7Bbmatrix%7D%20&plus;%20%5Cbegin%7Bbmatrix%7D%20%5Cfrac%7B1%7D%7B2%7D%28%5CDelta%20t%29%5E2%20cos%28%5Cpsi_k%29%5Cnu_%7Ba%2Ck%7D%5C%5C%20%5Cfrac%7B1%7D%7B2%7D%28%5CDelta%20t%29%5E2%20sin%28%5Cpsi_k%29%5Cnu_%7Ba%2Ck%7D%5C%5C%20%5CDelta%20t%20%5Ccdot%20%5Cnu_%7Ba%2Ck%7D%5C%5C%20%5Cfrac%7B1%7D%7B2%7D*%28%5CDelta%20t%29%5E2%20%5Cnu_%7B%5Cddot%20%5Cpsi%2C%20k%7D%5C%5C%20%5CDelta%20t%20%5Ccdot%20%5Cnu_%7B%5Cddot%20%5Cpsi%2Ck%7D%20%5Cend%7Bbmatrix%7D)
+
+If ![psi][psi] is 0, then the following equation is used. Otherwise, a divide-by-zero error may occur.
+
+![Prediction Equation psi 0](https://latex.codecogs.com/gif.latex?x_%7Bt&plus;1%7D%20%3D%20x_t%20&plus;%20%5Cbegin%7Bbmatrix%7D%20v_k%20cos%28%5Cpsi_k%29%5CDelta%20t%5C%5C%20v_k%20sin%28%5Cpsi_k%29%5CDelta%20t%5C%5C%200%5C%5C%20%5Cdot%20%5Cpsi_k%20%5CDelta%20t%5C%5C%200%20%5Cend%7Bbmatrix%7D%20&plus;%20%5Cbegin%7Bbmatrix%7D%20%5Cfrac%7B1%7D%7B2%7D%28%5CDelta%20t%29%5E2%20cos%28%5Cpsi_k%29%5Cnu_%7Ba%2Ck%7D%5C%5C%20%5Cfrac%7B1%7D%7B2%7D%28%5CDelta%20t%29%5E2%20sin%28%5Cpsi_k%29%5Cnu_%7Ba%2Ck%7D%5C%5C%20%5CDelta%20t%20%5Ccdot%20%5Cnu_%7Ba%2Ck%7D%5C%5C%20%5Cfrac%7B1%7D%7B2%7D*%28%5CDelta%20t%29%5E2%20%5Cnu_%7B%5Cddot%20%5Cpsi%2C%20k%7D%5C%5C%20%5CDelta%20t%20%5Ccdot%20%5Cnu_%7B%5Cddot%20%5Cpsi%2Ck%7D%20%5Cend%7Bbmatrix%7D)
+
+## Project Implemenation Details
+Following the provided starter code, the `src/ukf.cpp` and `src/tools.cpp` files were modified as necessary. For this project, `src/ufk.h` was also modified to add an extra class variable.
+
+The updated `src/ukf.cpp` file includes variable initialization and code that controls how RADAR and LiDAR data are processed using the unscented Kalman filter algorithm.
+
+The updated `src/tools.cpp` file includes a root mean square error calculator.
